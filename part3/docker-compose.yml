@@ -1,0 +1,44 @@
+version: '3.9'
+services:
+  generators:
+    image: emergency-generator:latest
+    environment:
+      - GENERATORS=3
+      - BROKER=kafka-mqtt-proxy
+    networks:
+      - mqtt
+  kafka-mqtt-proxy:
+    image: confluentinc/cp-kafka-mqtt
+    networks:
+      - mqtt
+    environment:
+        - KAFKA_MQTT_BOOTSTRAP_SERVERS=pkc-l6wr6.europe-west2.gcp.confluent.cloud:9092
+        - KAFKA_MQTT_KEY_CONVERTER=org.apache.kafka.connect.storage.StringConverter
+        - KAFKA_MQTT_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+        - KAFKA_MQTT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
+
+        - KAFKA_MQTT_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM=https
+        - KAFKA_MQTT_SECURITY_PROTOCOL=SASL_SSL
+        - KAFKA_MQTT_SASL_MECHANISM=PLAIN
+        - KAFKA_MQTT_SASL_JAAS_CONFIG="org.apache.kafka.common.security.plain.PlainLoginModule required username="######" password="######";
+        - KAFKA_MQTT_REQUEST_TIMEOUT_MS=20000
+        - KAFKA_MQTT_RETRY_BACKOFF_MS=500
+
+        - KAFKA_MQTT_PRODUCER_BOOTSTRAP_SERVERS=pkc-l6wr6.europe-west2.gcp.confluent.cloud:9092
+        - KAFKA_MQTT_PRODUCER_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM=https
+        - KAFKA_MQTT_PRODUCER_SECURITY_PROTOCOL=SASL_SSL
+        - KAFKA_MQTT_PRODUCER_SASL_MECHANISM=PLAIN
+        - KAFKA_MQTT_PRODUCER_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username="######" password="######";
+        - KAFKA_MQTT_PRODUCER_REQUEST_TIMEOUT_MS=20000
+        - KAFKA_MQTT_PRODUCER_RETRY_BACKOFF_MS=500
+
+        - KAFKA_MQTT_OFFSET_FLUSH_INTERVAL_MS=10000
+        - KAFKA_MQTT_OFFSET_STORAGE_FILE_FILENAME=/tmp/connect.offsets
+
+        - KAFKA_MQTT_LISTENERS=0.0.0.0:1883
+        - KAFKA_MQTT_TOPIC_REGEX_LIST=emergency_generators:.*
+        - KAFKA_MQTT_CONFLUENT_TOPIC_REPLICATION_FACTOR=1
+
+networks: 
+  mqtt:
+    name: mqtt
